@@ -3,10 +3,12 @@ const router = express.Router();
 const ethers = require('ethers');
 const crossmintService = require('../services/crossmint');
 const SeiAnalyticsService = require('../services/seiAnalytics');
+const AgentEngine = require('../services/agentEngine');
 
 const provider = new ethers.JsonRpcProvider('https://evm-rpc-testnet.sei-apis.com'); // Sei testnet RPC
 const contractAddress = process.env.CONTRACT_ADDRESS || '0x7fc58f2d50790f6cddb631b4757f54b893692dde'; // Deployed contract address
 const seiAnalytics = new SeiAnalyticsService();
+const agentEngine = new AgentEngine();
 const contractAbi = [ // ABI from Agent.sol compilation
   'function executeTrade(address token, uint256 amount, address recipient) external',
   'function executeTradeWithPayment(address token, uint256 amount, address recipient, string calldata paymentId) external',
@@ -50,11 +52,114 @@ router.get('/volatility/:tokenAddress', async (req, res) => {
   }
 });
 
+// Configure and start automated agent
+router.post('/configure', async (req, res) => {
+  try {
+    const { walletAddress, privateKey, volatilityThreshold, targetTokens, recipient } = req.body;
+    
+    if (!walletAddress || !privateKey || !volatilityThreshold || !targetTokens || !recipient) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
+    const io = req.app.get('io');
+    agentEngine.setSocketIO(io);
+
+    const result = await agentEngine.configureAgent({
+      walletAddress,
+      privateKey,
+      volatilityThreshold: parseFloat(volatilityThreshold),
+      targetTokens,
+      recipient
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Start automated trading engine
+router.post('/start-engine', async (req, res) => {
+  try {
+    const io = req.app.get('io');
+    agentEngine.setSocketIO(io);
+    
+    const result = await agentEngine.startMonitoring();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Stop automated trading engine
+router.post('/stop-engine', async (req, res) => {
+  try {
+    const result = await agentEngine.stopMonitoring();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get agent statistics
+router.get('/agent-stats/:agentAddress', async (req, res) => {
+  try {
+    const { agentAddress } = req.params;
+    const stats = await agentEngine.getAgentStats(agentAddress);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all agent statistics
+router.get('/all-agents', async (req, res) => {
+  try {
+    const stats = await agentEngine.getAllAgentStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get system statistics
+router.get('/system-stats', async (req, res) => {
+  try {
+    const stats = agentEngine.getSystemStats();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Deactivate agent
+router.post('/deactivate/:agentAddress', async (req, res) => {
+  try {
+    const { agentAddress } = req.params;
+    const result = await agentEngine.deactivateAgent(agentAddress);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reactivate agent
+router.post('/reactivate/:agentAddress', async (req, res) => {
+  try {
+    const { agentAddress } = req.params;
+    const result = await agentEngine.reactivateAgent(agentAddress);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Start real-time monitoring
 router.post('/start-monitoring', async (req, res) => {
   try {
     const io = req.app.get('io');
     seiAnalytics.startRealTimeMonitoring(io);
+    agentEngine.setSocketIO(io);
     res.json({ success: true, message: 'Real-time monitoring started' });
   } catch (error) {
     res.status(500).json({ error: error.message });
