@@ -1,4 +1,19 @@
-# NeonTradeBot
-AI-driven DeFi agent for portfolio automation on Sei Network.
+# 🤖 NeonTradeBot - AI DeFi Agent
 
-NeonTradeBot is an AI-driven DeFi agent that automates portfolio management and agent-to-agent payments on the Sei Network, leveraging its sub-400ms finality for real-time performance.
+**Cyberpunk-styled AI-driven DeFi agent for automated portfolio management on Sei Network**
+
+## 🚀 Project Overview
+Track Alignment
+Enhances DeFi protocols with automation (portfolio monitoring, trades) and payments (agent-to-agent via Crossmint GOAT SDK), improving UX for traders.
+Setup
+
+Clone repo.
+Contracts: cd contracts; forge install; forge test; forge create ... (deploy to Sei testnet).
+Backend: cd backend; npm install; node server.js.
+Frontend: cd frontend; npm install; npm run dev.
+
+Relevant Links
+
+X: @NeonTradeBot
+Demo Video: [Google Drive Link]
+Sei Integration: Uses https://rpc.sei-testnet.io for provider.

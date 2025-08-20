@@ -1,0 +1,15 @@
+{
+  "name": "neon-trade-bot-contracts",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Contract interaction scripts for NeonTradeBot on Sei testnet",
+  "main": "interact.js",
+  "scripts": {
+    "interact": "node interact.js",
+    "test": "node interact.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0"
+  }
+}
