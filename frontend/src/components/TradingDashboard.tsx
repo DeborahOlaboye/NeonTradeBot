@@ -151,8 +151,8 @@ export function TradingDashboard({ onLog }: TradingDashboardProps) {
 
   const getTypeIcon = (type: string) => {
     return type === 'BUY' ? 
-      <FeatherTrendingUp size={16} style={{ color: '#10b981' }} /> : 
-      <FeatherChevronDown size={16} style={{ color: '#ef4444' }} />;
+      <div style={{ color: '#10b981' }}><FeatherTrendingUp /></div> : 
+      <div style={{ color: '#ef4444' }}><FeatherChevronDown /></div>;
   };
 
   return (

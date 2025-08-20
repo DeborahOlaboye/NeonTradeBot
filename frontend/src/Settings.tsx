@@ -47,21 +47,27 @@ function Settings({ walletAddress, onDisconnect, onNavigate, currentPage }: Sett
         <div className="flex w-full flex-col items-center justify-center px-6 py-12">
           <div className="w-full max-w-[1280px] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherUser className="mb-4 text-[#00f0ffff] w-8 h-8" />
+              <div className="mb-4 text-[#00f0ffff] w-8 h-8 flex items-center justify-center">
+                <FeatherUser />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Profile</h3>
               <p className="text-[#8ca1ccff] mb-4">Update your personal information</p>
               <Button variant="brand-secondary">Edit Profile</Button>
             </div>
             
             <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherBell className="mb-4 text-[#00f0ffff] w-8 h-8" />
+              <div className="mb-4 text-[#00f0ffff] w-8 h-8 flex items-center justify-center">
+                <FeatherBell />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Notifications</h3>
               <p className="text-[#8ca1ccff] mb-4">Configure alert preferences</p>
               <Button variant="brand-secondary">Manage</Button>
             </div>
             
             <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherShield className="mb-4 text-[#00f0ffff] w-8 h-8" />
+              <div className="mb-4 text-[#00f0ffff] w-8 h-8 flex items-center justify-center">
+                <FeatherShield />
+              </div>
               <h3 className="text-xl font-bold text-white mb-2">Security</h3>
               <p className="text-[#8ca1ccff] mb-4">Two-factor authentication and security</p>
               <Button variant="brand-secondary">Configure</Button>
