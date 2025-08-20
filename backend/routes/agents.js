@@ -40,6 +40,35 @@ router.get('/network-stats', async (req, res) => {
   }
 });
 
+// Get agent list
+router.get('/list', async (req, res) => {
+  try {
+    const agents = await agentEngine.getAllAgentStats();
+    res.json({
+      success: true,
+      agents: agents || [],
+      count: agents ? agents.length : 0
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get analytics data
+router.get('/analytics', async (req, res) => {
+  try {
+    const stats = await seiAnalytics.getNetworkStats();
+    const systemStats = agentEngine.getSystemStats();
+    res.json({
+      network: stats,
+      system: systemStats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get token volatility data
 router.get('/volatility/:tokenAddress', async (req, res) => {
   try {
@@ -55,10 +84,10 @@ router.get('/volatility/:tokenAddress', async (req, res) => {
 // Configure and start automated agent
 router.post('/configure', async (req, res) => {
   try {
-    const { walletAddress, privateKey, volatilityThreshold, targetTokens, recipient } = req.body;
+    const { walletAddress, privateKey, volatilityThreshold, tradingPairs } = req.body;
     
-    if (!walletAddress || !privateKey || !volatilityThreshold || !targetTokens || !recipient) {
-      return res.status(400).json({ error: 'Missing required parameters' });
+    if (!walletAddress || !volatilityThreshold) {
+      return res.status(400).json({ error: 'Missing required parameters: walletAddress and volatilityThreshold' });
     }
 
     const io = req.app.get('io');
@@ -66,13 +95,29 @@ router.post('/configure', async (req, res) => {
 
     const result = await agentEngine.configureAgent({
       walletAddress,
-      privateKey,
+      privateKey: privateKey || 'demo_key',
       volatilityThreshold: parseFloat(volatilityThreshold),
-      targetTokens,
-      recipient
+      targetTokens: tradingPairs || ['SEI/USDT'],
+      recipient: walletAddress
     });
 
-    res.json(result);
+    // Emit configuration update to frontend
+    io.emit('agentConfigured', {
+      walletAddress,
+      volatilityThreshold,
+      tradingPairs,
+      timestamp: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      message: 'Agent configured successfully',
+      config: {
+        walletAddress,
+        volatilityThreshold,
+        tradingPairs
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
