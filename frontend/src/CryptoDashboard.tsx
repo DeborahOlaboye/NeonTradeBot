@@ -35,8 +35,8 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
           <img
-            className="h-10 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
-            src="/src/assets/neon-logo.svg"
+            className="h-16 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
+            src="/src/assets/neon-logo.png"
             alt="NeonTradeBot"
             onClick={() => window.location.href = '/'}
           />

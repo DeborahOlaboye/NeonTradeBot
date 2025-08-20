@@ -21,8 +21,8 @@ function LandingPage({ onConnect }: LandingPageProps) {
         <div className="flex w-full flex-col items-center justify-center gap-2 px-6 py-6 mobile:px-2 mobile:py-2">
           <div className="flex w-full max-w-[1280px] items-center justify-between">
             <img
-              className="h-10 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
-              src="/src/assets/neon-logo.svg"
+              className="h-16 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              src="/src/assets/neon-logo.png"
               alt="NeonTradeBot"
               onClick={() => window.location.href = '/'}
             />
