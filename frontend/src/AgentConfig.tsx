@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Alert } from "@/ui/components/Alert";
 import { Button } from "@/ui/components/Button";
 import { DropdownMenu } from "@/ui/components/DropdownMenu";
@@ -18,6 +18,7 @@ import * as SubframeCore from "@/subframe/core";
 import { FeatherChevronDown } from "@/subframe/core";
 import { FeatherPlay } from "@/subframe/core";
 import { FeatherPause } from "@/subframe/core";
+import apiService, { AgentConfig as AgentConfigType } from "./services/api";
 
 function CryptoDashboard() {
   return (
