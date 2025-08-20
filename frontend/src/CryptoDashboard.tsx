@@ -1,13 +1,16 @@
 "use client";
 
 import React from "react";
-import { Alert } from "@/ui/components/Alert";
-import { Badge } from "@/ui/components/Badge";
+import Sidebar from "./components/Sidebar";
+import { TradingDashboard } from "./components/TradingDashboard";
+import { WalletConnection } from "./components/WalletConnection";
 import { Button } from "@/ui/components/Button";
 import { IconButton } from "@/ui/components/IconButton";
 import { IconWithBackground } from "@/ui/components/IconWithBackground";
 import { Switch } from "@/ui/components/Switch";
 import { Tabs } from "@/ui/components/Tabs";
+import { Alert } from "@/ui/components/Alert";
+import { Badge } from "@/ui/components/Badge";
 import { TextField } from "@/ui/components/TextField";
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
 import { FeatherSearch } from "@/subframe/core";
@@ -18,7 +21,6 @@ import { FeatherArrowUpRight } from "@/subframe/core";
 import { FeatherClock } from "@/subframe/core";
 import { FeatherAlertCircle } from "@/subframe/core";
 import { FeatherCreditCard } from "@/subframe/core";
-import Sidebar from "./components/Sidebar";
 
 interface CryptoDashboardProps {
   walletAddress: string;
@@ -33,20 +35,16 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
           <img
-            className="h-10 flex-none object-contain"
+            className="h-10 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
             src="/src/assets/neon-logo.svg"
             alt="NeonTradeBot"
+            onClick={() => window.location.href = '/'}
           />
           <span className="grow shrink-0 basis-0 text-heading-2 font-heading-2 text-[#00f0ffff]">
             Trading Dashboard
           </span>
-          <div className="flex items-start gap-2">
-            <Button
-              icon={<FeatherWallet />}
-              onClick={onDisconnect}
-            >
-              Disconnect ({walletAddress})
-            </Button>
+          <div className="flex items-center gap-4">
+            <WalletConnection onDisconnect={onDisconnect} />
           </div>
         </div>
         
@@ -72,16 +70,6 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
               0x7E3b...8F9d
             </Button>
           </div>
-        </div>
-        <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-4">
-          <Tabs>
-            <Tabs.Item>Overview</Tabs.Item>
-            <Tabs.Item>Agent Config</Tabs.Item>
-            <Tabs.Item>Trades</Tabs.Item>
-            <Tabs.Item active={true}>Payments</Tabs.Item>
-            <Tabs.Item>Social</Tabs.Item>
-            <Tabs.Item>Settings</Tabs.Item>
-          </Tabs>
         </div>
         <div className="flex w-full grow shrink-0 basis-0 flex-wrap items-start">
           <div className="flex grow shrink-0 basis-0 flex-col items-start self-stretch overflow-auto">

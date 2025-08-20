@@ -4,6 +4,7 @@ import React from "react";
 import { Button } from "@/ui/components/Button";
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
 import Sidebar from "./components/Sidebar";
+import { WalletConnection } from "./components/WalletConnection";
 import { 
   FeatherSettings,
   FeatherWallet,
@@ -26,20 +27,16 @@ function Settings({ walletAddress, onDisconnect, onNavigate, currentPage }: Sett
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
           <img
-            className="h-10 flex-none object-contain"
+            className="h-10 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
             src="/src/assets/neon-logo.svg"
             alt="NeonTradeBot"
+            onClick={() => window.location.href = '/'}
           />
           <span className="grow shrink-0 basis-0 text-heading-2 font-heading-2 text-[#00f0ffff]">
             Settings
           </span>
-          <div className="flex items-start gap-2">
-            <Button
-              icon={<FeatherWallet />}
-              onClick={onDisconnect}
-            >
-              Disconnect ({walletAddress})
-            </Button>
+          <div className="flex items-center gap-4">
+            <WalletConnection onDisconnect={onDisconnect} />
           </div>
         </div>
         

@@ -16,7 +16,7 @@ interface SidebarProps {
 }
 
 const navigationItems = [
-  { id: "overview", label: "Overview", icon: FeatherActivity },
+  { id: "dashboard", label: "Overview", icon: FeatherActivity },
   { id: "agent-config", label: "Agent Config", icon: FeatherTrendingUp },
   { id: "trades", label: "Trades", icon: FeatherBarChart3 },
   { id: "payments", label: "Payments", icon: FeatherCreditCard },
