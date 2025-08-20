@@ -18,16 +18,41 @@ import { FeatherArrowUpRight } from "@/subframe/core";
 import { FeatherClock } from "@/subframe/core";
 import { FeatherAlertCircle } from "@/subframe/core";
 import { FeatherCreditCard } from "@/subframe/core";
+import Sidebar from "./components/Sidebar";
 
-function CryptoDashboard() {
+interface CryptoDashboardProps {
+  walletAddress: string;
+  onDisconnect: () => void;
+  onNavigate: (page: string) => void;
+  currentPage: string;
+}
+
+function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage }: CryptoDashboardProps) {
   return (
     <DefaultPageLayout>
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
+          <img
+            className="h-10 flex-none object-contain"
+            src="/src/assets/neon-logo.svg"
+            alt="NeonTradeBot"
+          />
           <span className="grow shrink-0 basis-0 text-heading-2 font-heading-2 text-[#00f0ffff]">
-            Payments &amp; Settlements
+            Trading Dashboard
           </span>
           <div className="flex items-start gap-2">
+            <Button
+              icon={<FeatherWallet />}
+              onClick={onDisconnect}
+            >
+              Disconnect ({walletAddress})
+            </Button>
+          </div>
+        </div>
+        
+        <div className="flex w-full flex-col items-center justify-center gap-8 px-6 pt-8">
+          <Sidebar currentPage={currentPage} onNavigate={onNavigate} />
+          <div className="w-full max-w-6xl">
             <TextField
               variant="filled"
               label=""

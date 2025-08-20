@@ -11,22 +11,27 @@ import { FeatherTrendingUp } from "@/subframe/core";
 import { FeatherShield } from "@/subframe/core";
 import { FeatherZap } from "@/subframe/core";
 
-function LandingPage() {
+interface LandingPageProps {
+  onConnectWallet: () => void;
+}
+
+function LandingPage({ onConnectWallet }: LandingPageProps) {
   return (
     <DefaultPageLayout>
       <div className="flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full flex-col items-center justify-center gap-2 px-6 py-6 mobile:px-2 mobile:py-2">
           <div className="flex w-full max-w-[1280px] items-center justify-between">
             <img
-              className="h-8 flex-none object-cover"
-              src="https://images.unsplash.com/photo-1701195618122-95f98c1b1164?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3"
+              className="h-10 flex-none object-contain"
+              src="/src/assets/neon-logo.svg"
+              alt="NeonTradeBot"
             />
             <div className="flex items-center gap-4">
               <SubframeCore.DropdownMenu.Root>
                 <SubframeCore.DropdownMenu.Trigger asChild={true}>
                   <Button
                     icon={<FeatherWallet />}
-                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                    onClick={onConnectWallet}
                   >
                     Connect Wallet
                   </Button>
@@ -130,7 +135,7 @@ function LandingPage() {
             </div>
             <Button
               size="large"
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+              onClick={onConnectWallet}
             >
               Connect Wallet
             </Button>

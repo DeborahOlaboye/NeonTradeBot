@@ -15,7 +15,9 @@ export interface AgentConfig {
   walletAddress: string;
   privateKey: string;
   volatilityThreshold: number;
-  tradingPairs: string[];
+  maxTradeAmount: number;
+  tradingPairs?: string[];
+  isActive?: boolean;
 }
 
 export interface TradeLog {
