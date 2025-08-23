@@ -41,9 +41,13 @@ forge test
 - **Seitrace**: https://seitrace.com/address/0xc5E45f7888a4FdAA75291aeF8A86DC83475243e5?chainId=1328
 - **Transaction**: https://seitrace.com/tx/0x1ee3b63ae059a7e77af086298618cb422ea7560105d0419a6917c5394beb6233?chainId=1328
 
-## Hackathon Compliance
 This contract is specifically built for the **DeFi and Payments Track** of the ai/accelathon, featuring:
 - Native Sei Network deployment
 - Crossmint payment integration
 - AI agent automation capabilities
 - Sub-400ms transaction finality
+
+
+YeiFinanceLendingPool deployed to: 0x317884d7a0cAE2Fa64D1475d091E45574E5DaF85
+  USDC deployed to: 0xEe4053bf95DfDc1C88609182E6d1b57f24E5feFE
+  USDT deployed to: 0xd23329263c344a1d1AFC3140E2F5d1F0AA5d60D9

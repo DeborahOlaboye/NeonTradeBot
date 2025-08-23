@@ -55,7 +55,7 @@ function LandingPage({ onConnect }: LandingPageProps) {
               size="large"
               onClick={() => {window.location.href = 'https://github.com/DeborahOlaboye/NeonTradeBot/blob/main/README.md'}}
             >
-              📚 Documentation
+            Documentation
             </Button>
             <Button
               className="hover:scale-105 hover:shadow-[0_0_35px_rgba(200,47,255,0.7)] border-2 border-[#00f0ff] bg-gradient-to-r from-[#00f0ff]/20 to-[#c82fff]/20 shadow-[0_0_25px_rgba(0,240,255,0.6)] text-white transition-all duration-300"
@@ -68,7 +68,7 @@ function LandingPage({ onConnect }: LandingPageProps) {
                 }
               }}
             >
-              🚀 Try Demo
+            Learn More
             </Button>
           </div>
         </div>
@@ -191,7 +191,7 @@ function LandingPage({ onConnect }: LandingPageProps) {
                 </div>
                 
                 <button className="w-full mt-6 px-6 py-4 bg-gradient-to-r from-[#c82fff] to-[#00f0ff] text-white font-[600] rounded-lg hover:scale-105 hover:shadow-[0_0_30px_rgba(0,240,255,0.6)] transition-all duration-300 cursor-pointer">
-                  🚀 Deploy Agent
+                  Deploy Agent
                 </button>
               </div>
             </div>
@@ -213,7 +213,7 @@ function LandingPage({ onConnect }: LandingPageProps) {
                 
                 <div className="flex items-center gap-3 p-3 bg-[#2a1f4a]/50 rounded-lg border border-[#c82fff]/20">
                   <div className="w-2 h-2 rounded-full bg-[#00f0ff] animate-pulse"></div>
-                  <span className="text-[#00f0ff] text-sm font-mono">📊 SEI/USDT volatility: 12.3% (above threshold)</span>
+                  <span className="text-[#00f0ff] text-sm font-mono">SEI/USDT volatility: 12.3% (above threshold)</span>
                 </div>
                 
                 <div className="flex items-center gap-3 p-3 bg-[#3a2f5a]/50 rounded-lg border border-[#ca4e98]/20">
@@ -223,12 +223,12 @@ function LandingPage({ onConnect }: LandingPageProps) {
                 
                 <div className="flex items-center gap-3 p-3 bg-[#1a0f3a]/50 rounded-lg border border-green-500/20">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                  <span className="text-green-400 text-sm font-mono">💰 Trade executed: TX 0xabc123...def456</span>
+                  <span className="text-green-400 text-sm font-mono">Trade executed: TX 0xabc123...def456</span>
                 </div>
                 
                 <div className="flex items-center gap-3 p-3 bg-[#2a1f4a]/50 rounded-lg border border-[#00f0ff]/20">
                   <div className="w-2 h-2 rounded-full bg-[#c82fff] animate-pulse"></div>
-                  <span className="text-[#c82fff] text-sm font-mono">🔄 Crossmint payment settled: $450.23</span>
+                  <span className="text-[#c82fff] text-sm font-mono">Crossmint payment settled: $450.23</span>
                 </div>
               </div>
               

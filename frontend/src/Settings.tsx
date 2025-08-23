@@ -10,6 +10,7 @@ import Sidebar from "./components/Sidebar";
 import { WalletConnection } from "./components/WalletConnection";
 import { useBotContext } from "./contexts/BotContext";
 import { apiService } from "./services/api";
+import YeiFinancePanel from "./components/YeiFinancePanel";
 import { 
   FeatherSettings,
   FeatherWallet,
@@ -649,6 +650,9 @@ function Trading({ walletAddress, onDisconnect, onNavigate, currentPage }: Tradi
             
             {/* Crossmint Integration Section */}
             <CrossmintIntegrationPanel />
+            
+            {/* Yei Finance Integration Section */}
+            <YeiFinancePanel walletAddress={walletAddress} />
           </div>
         </div>
       </div>

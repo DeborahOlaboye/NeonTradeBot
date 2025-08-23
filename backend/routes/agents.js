@@ -1,14 +1,15 @@
 const express = require('express');
-const router = express.Router();
-const ethers = require('ethers');
-const crossmintService = require('../services/crossmint');
+const { ethers } = require('ethers');
 const SeiAnalyticsService = require('../services/seiAnalytics');
+const crossmint = require('../services/crossmint');
 const AgentEngine = require('../services/agentEngine');
+const YeiFinanceService = require('../services/yeiFinance');
 
 const provider = new ethers.JsonRpcProvider('https://evm-rpc-testnet.sei-apis.com'); // Sei testnet RPC
 const contractAddress = process.env.CONTRACT_ADDRESS || '0x7fc58f2d50790f6cddb631b4757f54b893692dde'; // Deployed contract address
 const seiAnalytics = new SeiAnalyticsService();
 const agentEngine = new AgentEngine();
+const yeiFinance = new YeiFinanceService();
 const contractAbi = [ // ABI from Agent.sol compilation
   'function executeTrade(address token, uint256 amount, address recipient) external',
   'function executeTradeWithPayment(address token, uint256 amount, address recipient, string calldata paymentId) external',
@@ -18,6 +19,8 @@ const contractAbi = [ // ABI from Agent.sol compilation
   'function authorizedAgents(address) external view returns (bool)',
   'function owner() external view returns (address)'
 ];
+
+const router = express.Router();
 
 // Get comprehensive analytics dashboard data
 router.get('/analytics/:agentAddress', async (req, res) => {
@@ -525,39 +528,76 @@ router.get('/all-agents', async (req, res) => {
     const stats = await agentEngine.getAllAgentStats();
     res.json(stats);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error getting agent stats:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Get system statistics
-router.get('/system-stats', async (req, res) => {
+// Yei Finance supply endpoint
+router.post('/yei/supply', async (req, res) => {
   try {
-    const stats = agentEngine.getSystemStats();
-    res.json(stats);
+    const { asset, amount, userAddress } = req.body;
+    
+    if (!asset || !amount || !userAddress) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing required fields: asset, amount, userAddress' 
+      });
+    }
+
+    const result = await yeiFinance.supplyAsset(asset, amount, userAddress);
+    res.json({ success: true, ...result });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error supplying asset:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Deactivate agent
-router.post('/deactivate/:agentAddress', async (req, res) => {
+router.post('/yei/optimize-yield', async (req, res) => {
   try {
-    const { agentAddress } = req.params;
-    const result = await agentEngine.deactivateAgent(agentAddress);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+    const { userAddress, availableBalance, riskTolerance } = req.body;
+    
+    if (!userAddress) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Missing required field: userAddress' 
+      });
+    }
 
-// Reactivate agent
-router.post('/reactivate/:agentAddress', async (req, res) => {
-  try {
-    const { agentAddress } = req.params;
-    const result = await agentEngine.reactivateAgent(agentAddress);
-    res.json(result);
+    // Get yield opportunities
+    const opportunities = await yeiFinance.getYieldOpportunities();
+    
+    // Filter by risk tolerance
+    const filteredOpportunities = opportunities.filter(opp => {
+      if (riskTolerance === 'low') return opp.risk === 'low';
+      if (riskTolerance === 'medium') return ['low', 'medium'].includes(opp.risk);
+      return true; // high risk tolerance accepts all
+    });
+
+    // Sort by net yield (descending)
+    const sortedOpportunities = filteredOpportunities.sort((a, b) => b.netYield - a.netYield);
+    
+    // Select best opportunity
+    const bestOpportunity = sortedOpportunities[0];
+    
+    if (!bestOpportunity) {
+      return res.json({ 
+        success: false, 
+        error: 'No suitable yield opportunities found for your risk tolerance' 
+      });
+    }
+
+    const strategy = `Allocate to ${bestOpportunity.asset} on ${bestOpportunity.protocol} for ${bestOpportunity.netYield.toFixed(2)}% APY`;
+    
+    res.json({ 
+      success: true, 
+      strategy,
+      bestOpportunity,
+      allocations: [bestOpportunity]
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error optimizing yield:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -840,6 +880,148 @@ router.post('/authorize', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== YEI FINANCE INTEGRATION ROUTES =====
+
+// Get Yei Finance yield opportunities
+router.get('/yei/opportunities', async (req, res) => {
+  try {
+    const opportunities = await yeiFinance.getYieldOpportunities();
+    res.json({ success: true, opportunities });
+  } catch (error) {
+    console.error('Error fetching yield opportunities:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Supply assets to Yei Finance
+router.post('/yei/supply', async (req, res) => {
+  try {
+    const { asset, amount, userAddress } = req.body;
+    
+    if (!asset || !amount || !userAddress) {
+      return res.status(400).json({ error: 'Asset, amount, and userAddress are required' });
+    }
+
+    // Initialize Yei Finance with private key if not already done
+    if (!yeiFinance.wallet) {
+      await yeiFinance.initialize(process.env.PRIVATE_KEY);
+    }
+
+    const result = await yeiFinance.supplyAsset(asset, amount, userAddress);
+    
+    if (result.success) {
+      req.app.get('io').emit('log', `Yei Finance: Supplied ${amount} ${asset} | APY: ${result.yieldAPY}%`);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Withdraw assets from Yei Finance
+router.post('/yei/withdraw', async (req, res) => {
+  try {
+    const { asset, amount, userAddress } = req.body;
+    
+    if (!asset || !amount || !userAddress) {
+      return res.status(400).json({ error: 'Asset, amount, and userAddress are required' });
+    }
+
+    if (!yeiFinance.wallet) {
+      await yeiFinance.initialize(process.env.PRIVATE_KEY);
+    }
+
+    const result = await yeiFinance.withdrawAsset(asset, amount, userAddress);
+    
+    if (result.success) {
+      req.app.get('io').emit('log', `Yei Finance: Withdrew ${amount} ${asset}`);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Borrow assets from Yei Finance
+router.post('/yei/borrow', async (req, res) => {
+  try {
+    const { asset, amount, userAddress } = req.body;
+    
+    if (!asset || !amount || !userAddress) {
+      return res.status(400).json({ error: 'Asset, amount, and userAddress are required' });
+    }
+
+    if (!yeiFinance.wallet) {
+      await yeiFinance.initialize(process.env.PRIVATE_KEY);
+    }
+
+    const result = await yeiFinance.borrowAsset(asset, amount, userAddress);
+    
+    if (result.success) {
+      req.app.get('io').emit('log', `Yei Finance: Borrowed ${amount} ${asset} | APY: ${result.borrowAPY}%`);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's Yei Finance account data
+router.get('/yei/account/:userAddress', async (req, res) => {
+  try {
+    const { userAddress } = req.params;
+    
+    if (!yeiFinance.wallet) {
+      await yeiFinance.initialize(process.env.PRIVATE_KEY);
+    }
+
+    const accountData = await yeiFinance.getUserAccountData(userAddress);
+    res.json({ success: true, ...accountData });
+  } catch (error) {
+    console.error('Error fetching account data:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Optimize yield automatically
+router.post('/yei/optimize-yield', async (req, res) => {
+  try {
+    const { userAddress, availableBalance, riskTolerance = 'medium' } = req.body;
+    
+    if (!userAddress || !availableBalance) {
+      return res.status(400).json({ error: 'UserAddress and availableBalance are required' });
+    }
+
+    if (!yeiFinance.wallet) {
+      await yeiFinance.initialize(process.env.PRIVATE_KEY);
+    }
+
+    const result = await yeiFinance.optimizeYield(userAddress, availableBalance, riskTolerance);
+    
+    if (result.success) {
+      req.app.get('io').emit('log', `Yei Finance: Yield optimized for ${userAddress} | Strategy: ${result.strategy}`);
+    }
+    
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get Yei Finance protocol statistics
+router.get('/yei/stats', async (req, res) => {
+  try {
+    const stats = await yeiFinance.getProtocolStats();
+    res.json({ success: true, ...stats });
+  } catch (error) {
+    console.error('Error fetching protocol stats:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

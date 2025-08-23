@@ -1,6 +1,7 @@
 const { ethers } = require('ethers');
 const SeiAnalyticsService = require('./seiAnalytics');
 const crossmintService = require('./crossmint');
+const YeiFinanceService = require('./yeiFinance');
 
 class AgentEngine {
   constructor() {
@@ -10,6 +11,7 @@ class AgentEngine {
     this.tradeHistory = new Map(); // Store trade history per agent
     this.provider = new ethers.JsonRpcProvider('https://evm-rpc-testnet.sei-apis.com');
     this.contractAddress = '0x7fc58f2d50790f6cddb631b4757f54b893692dde';
+    this.yeiFinance = new YeiFinanceService();
     this.contractABI = [
       "function executeTrade(address token, uint256 amount, address recipient) external",
       "function executeTradeWithPayment(address token, uint256 amount, address recipient, string calldata paymentId) external",
