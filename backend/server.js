@@ -5,21 +5,29 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const app = express();
 const server = http.createServer(app);
+const corsOrigins = [
+  "http://localhost:3001", 
+  "http://localhost:3000", 
+  "http://localhost:5173", 
+  "http://localhost:5174",
+  "https://neon-trade-bot.vercel.app",
+  "https://neontradebot.vercel.app",
+  "https://neontradebot-frontend.vercel.app",
+  "https://neontradebot.onrender.com",
+  /^https:\/\/.*\.vercel\.app$/
+];
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3001", 
-      "http://localhost:3000", 
-      "http://localhost:5173", 
-      "http://localhost:5174",
-      "https://neon-trade-bot.vercel.app",
-      "https://neontradebot.onrender.com"
-    ],
+    origin: corsOrigins,
     methods: ["GET", "POST"]
   }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true
+}));
 app.use(express.json());
 app.set('io', io);
 
