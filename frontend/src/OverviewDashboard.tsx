@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useBalance } from "wagmi";
 import { Button } from "@/ui/components/Button";
 import { CleanPageLayout } from "@/ui/layouts/clean-page-layout";
 import { 
@@ -29,6 +30,11 @@ function OverviewDashboard({ walletAddress, onDisconnect, onNavigate, currentPag
   const [networkStats, setNetworkStats] = useState<NetworkStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get user's wallet balance instead of contract balance
+  const { data: balance, isLoading: balanceLoading } = useBalance({
+    address: walletAddress as `0x${string}`,
+  });
 
   useEffect(() => {
     const fetchNetworkStats = async () => {
@@ -73,8 +79,8 @@ function OverviewDashboard({ walletAddress, onDisconnect, onNavigate, currentPag
     <CleanPageLayout>
       <div className="flex h-full w-full flex-col items-start bg-[#0a0f2aff] min-h-screen">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
-          <img
-            className="h-16 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
+        <img
+            className="h-20 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
             src="/neon-logo.png"
             alt="NeonTradeBot"
             onClick={() => window.location.href = '/'}
@@ -140,12 +146,12 @@ function OverviewDashboard({ walletAddress, onDisconnect, onNavigate, currentPag
               <div className="w-8 h-8 text-[#c82fff] mx-auto mb-3 flex items-center justify-center">
                 <FeatherWallet />
               </div>
-              <h3 className="text-[#00f0ffff] text-lg font-semibold mb-2">Contract Balance</h3>
-              {isLoading ? (
+              <h3 className="text-[#00f0ffff] text-lg font-semibold mb-2">Wallet Balance</h3>
+              {balanceLoading ? (
                 <p className="text-[#8ca1ccff]">Loading...</p>
               ) : (
                 <p className="text-[#00f0ffff] text-xl">
-                  {networkStats?.contractBalance || '0'} SEI
+                  {balance ? parseFloat(balance.formatted).toFixed(4) : '0.0000'} {balance?.symbol || 'SEI'}
                 </p>
               )}
             </div>

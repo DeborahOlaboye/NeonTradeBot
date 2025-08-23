@@ -78,6 +78,7 @@ export function WalletConnection({ onConnect, onDisconnect }: WalletConnectionPr
                   <Button
                     onClick={openConnectModal}
                     variant="brand-primary"
+                    size="large"
                     icon={<FeatherWallet />}
                   >
                     Connect Wallet

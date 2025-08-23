@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import { TradingDashboard } from "./components/TradingDashboard";
 import { WalletConnection } from "./components/WalletConnection";
@@ -30,12 +30,24 @@ interface CryptoDashboardProps {
 }
 
 function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage }: CryptoDashboardProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [balance, setBalance] = useState("2.45");
+  const [transactions, setTransactions] = useState([
+    { id: "0x71C...9E3F", status: "Completed", amount: "2.5 ETH" },
+    { id: "0x82D...7A1B", status: "Pending", amount: "1.8 ETH" },
+    { id: "0x93F...2D4C", status: "Failed", amount: "0.5 ETH" }
+  ]);
+  const [paymentMethods, setPaymentMethods] = useState([
+    { name: "MetaMask", status: "Connected", enabled: true },
+    { name: "Crossmint", status: "Enabled", enabled: true }
+  ]);
+
   return (
     <DefaultPageLayout>
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
           <img
-            className="h-16 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-20 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
             src="/neon-logo.png"
             alt="NeonTradeBot"
             onClick={() => window.location.href = '/'}
@@ -59,15 +71,15 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
             >
               <TextField.Input
                 placeholder="Search transactions"
-                value=""
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}
+                value={searchQuery}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
               />
             </TextField>
             <Button
               icon={<FeatherWallet />}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+              onClick={() => navigator.clipboard.writeText(walletAddress)}
             >
-              0x7E3b...8F9d
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
             </Button>
           </div>
         </div>
@@ -83,7 +95,7 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
                   <IconButton
                     size="medium"
                     icon={<FeatherX />}
-                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                    onClick={() => console.log('Alert dismissed')}
                   />
                 }
               />
@@ -94,56 +106,42 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
                       Available Balance
                     </span>
                     <span className="text-heading-1 font-heading-1 text-[#00f0ffff]">
-                      2.45 ETH
+                      {balance} ETH
                     </span>
                   </div>
                   <Button
                     icon={<FeatherArrowUpRight />}
-                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                    onClick={() => console.log('Withdraw initiated')}
                   >
                     Withdraw
                   </Button>
                 </div>
                 <div className="flex w-full flex-col items-start gap-4">
-                  <div className="flex w-full items-center justify-between border-b border-solid border-[#4269aaff] px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <IconWithBackground variant="success" />
-                      <span className="text-body-bold font-body-bold text-[#00f0ffff]">
-                        0x71C...9E3F
+                  {transactions.filter(tx => 
+                    tx.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    tx.status.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).map(tx => (
+                    <div key={tx.id} className="flex w-full items-center justify-between border-b border-solid border-[#4269aaff] px-4 py-4">
+                      <div className="flex items-center gap-2">
+                        <IconWithBackground 
+                          variant={tx.status === 'Completed' ? 'success' : tx.status === 'Failed' ? 'error' : undefined}
+                          icon={tx.status === 'Pending' ? <FeatherClock /> : tx.status === 'Failed' ? <FeatherAlertCircle /> : undefined}
+                        />
+                        <span className={`text-body-bold font-body-bold ${
+                          tx.status === 'Completed' ? 'text-[#00f0ffff]' : 
+                          tx.status === 'Pending' ? 'text-[#c82fffff]' : 'text-[#ca4e98ff]'
+                        }`}>
+                          {tx.id}
+                        </span>
+                      </div>
+                      <Badge variant={tx.status === 'Completed' ? 'success' : tx.status === 'Failed' ? 'error' : undefined}>
+                        {tx.status}
+                      </Badge>
+                      <span className="text-body font-body text-[#8ca1ccff]">
+                        {tx.amount}
                       </span>
                     </div>
-                    <Badge variant="success">Completed</Badge>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      2.5 ETH
-                    </span>
-                  </div>
-                  <div className="flex w-full items-center justify-between border-b border-solid border-[#4269aaff] px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <IconWithBackground icon={<FeatherClock />} />
-                      <span className="text-body-bold font-body-bold text-[#c82fffff]">
-                        0x82D...7A1B
-                      </span>
-                    </div>
-                    <Badge>Pending</Badge>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      1.8 ETH
-                    </span>
-                  </div>
-                  <div className="flex w-full items-center justify-between border-b border-solid border-[#4269aaff] px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <IconWithBackground
-                        variant="error"
-                        icon={<FeatherAlertCircle />}
-                      />
-                      <span className="text-body-bold font-body-bold text-[#ca4e98ff]">
-                        0x93F...2D4C
-                      </span>
-                    </div>
-                    <Badge variant="error">Failed</Badge>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      0.5 ETH
-                    </span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -154,36 +152,27 @@ function CryptoDashboard({ walletAddress, onDisconnect, onNavigate, currentPage 
                 Payment Methods
               </span>
               <div className="flex w-full flex-col items-start gap-4">
-                <div className="flex w-full items-center gap-4 rounded-md bg-[#030c36ff] px-4 py-4">
-                  <IconWithBackground icon={<FeatherWallet />} />
-                  <div className="flex grow shrink-0 basis-0 flex-col items-start">
-                    <span className="text-body-bold font-body-bold text-[#00f0ffff]">
-                      MetaMask
-                    </span>
-                    <span className="text-caption font-caption text-[#8ca1ccff]">
-                      Connected
-                    </span>
+                {paymentMethods.map((method, index) => (
+                  <div key={method.name} className="flex w-full items-center gap-4 rounded-md bg-[#030c36ff] px-4 py-4">
+                    <IconWithBackground icon={method.name === 'MetaMask' ? <FeatherWallet /> : <FeatherCreditCard />} />
+                    <div className="flex grow shrink-0 basis-0 flex-col items-start">
+                      <span className="text-body-bold font-body-bold text-[#00f0ffff]">
+                        {method.name}
+                      </span>
+                      <span className="text-caption font-caption text-[#8ca1ccff]">
+                        {method.status}
+                      </span>
+                    </div>
+                    <Switch
+                      checked={method.enabled}
+                      onCheckedChange={(checked: boolean) => {
+                        setPaymentMethods(prev => prev.map((m, i) => 
+                          i === index ? { ...m, enabled: checked } : m
+                        ));
+                      }}
+                    />
                   </div>
-                  <Switch
-                    checked={false}
-                    onCheckedChange={(checked: boolean) => {}}
-                  />
-                </div>
-                <div className="flex w-full items-center gap-4 rounded-md bg-[#030c36ff] px-4 py-4">
-                  <IconWithBackground icon={<FeatherCreditCard />} />
-                  <div className="flex grow shrink-0 basis-0 flex-col items-start">
-                    <span className="text-body-bold font-body-bold text-[#00f0ffff]">
-                      Crossmint
-                    </span>
-                    <span className="text-caption font-caption text-[#8ca1ccff]">
-                      Enabled
-                    </span>
-                  </div>
-                  <Switch
-                    checked={false}
-                    onCheckedChange={(checked: boolean) => {}}
-                  />
-                </div>
+                ))}
               </div>
             </div>
           </div>

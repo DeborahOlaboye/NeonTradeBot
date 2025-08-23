@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/ui/components/Button";
 import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
 import Sidebar from "./components/Sidebar";
@@ -22,12 +22,23 @@ interface PaymentsProps {
 }
 
 function Payments({ walletAddress, onDisconnect, onNavigate, currentPage }: PaymentsProps) {
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: 1, name: "Credit Card", description: "Manage your credit cards and payment options", action: "Manage" },
+    { id: 2, name: "Billing History", description: "View past invoices and payments", action: "View History" },
+    { id: 3, name: "Subscription", description: "Manage your subscription plan", action: "Manage Plan" }
+  ]);
+
+  const handlePaymentAction = (id: number, action: string) => {
+    console.log(`Payment action: ${action} for method ${id}`);
+    // Add actual payment logic here
+  };
+
   return (
     <DefaultPageLayout>
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-6">
           <img
-            className="h-16 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-20 flex-none object-contain cursor-pointer hover:opacity-80 transition-opacity"
             src="/neon-logo.png"
             alt="NeonTradeBot"
             onClick={() => window.location.href = '/'}
@@ -50,26 +61,28 @@ function Payments({ walletAddress, onDisconnect, onNavigate, currentPage }: Paym
           
           {/* Traditional Payment Options */}
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherCreditCard className="mb-4 text-[#00f0ffff] w-8 h-8" />
-              <h3 className="text-xl font-bold text-white mb-2">Payment Methods</h3>
-              <p className="text-[#8ca1ccff] mb-4">Manage your credit cards and payment options</p>
-              <Button variant="brand-secondary">Manage</Button>
-            </div>
-            
-            <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherFileText className="mb-4 text-[#00f0ffff] w-8 h-8" />
-              <h3 className="text-xl font-bold text-white mb-2">Billing History</h3>
-              <p className="text-[#8ca1ccff] mb-4">View past invoices and payments</p>
-              <Button variant="brand-secondary">View History</Button>
-            </div>
-            
-            <div className="bg-[#1a1f3aff] rounded-lg p-6">
-              <FeatherCalendar className="mb-4 text-[#00f0ffff] w-8 h-8" />
-              <h3 className="text-xl font-bold text-white mb-2">Subscription</h3>
-              <p className="text-[#8ca1ccff] mb-4">Manage your subscription plan</p>
-              <Button variant="brand-secondary">Manage Plan</Button>
-            </div>
+            {paymentMethods.map((method) => {
+              const IconComponent = method.name === "Credit Card" ? FeatherCreditCard : 
+                                 method.name === "Billing History" ? FeatherFileText : FeatherCalendar;
+              
+              return (
+                <div key={method.id} className="bg-[#1a1f3aff] rounded-lg p-6 hover:bg-[#252a4aff] transition-colors cursor-pointer"
+                     onClick={() => handlePaymentAction(method.id, method.action)}>
+                  <IconComponent className="mb-4 text-[#00f0ffff] w-8 h-8" />
+                  <h3 className="text-xl font-bold text-white mb-2">{method.name}</h3>
+                  <p className="text-[#8ca1ccff] mb-4">{method.description}</p>
+                  <Button 
+                    variant="brand-secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePaymentAction(method.id, method.action);
+                    }}
+                  >
+                    {method.action}
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

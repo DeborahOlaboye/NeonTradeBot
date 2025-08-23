@@ -18,12 +18,12 @@ The contract source code is available at: `contracts/src/Agent.sol`
 - **Optimization**: Enabled
 
 ## Contract Features
-- ✅ **Owner-based access control**
-- ✅ **Agent authorization system**
-- ✅ **Trade execution with Crossmint payment IDs**
-- ✅ **Batch trading capabilities**
-- ✅ **Emergency withdrawal functions**
-- ✅ **Event logging for all operations**
+- **Owner-based access control**
+- **Agent authorization system**
+- **Trade execution with Crossmint payment IDs**
+- **Batch trading capabilities**
+- **Emergency withdrawal functions**
+- **Event logging for all operations**
 
 ## Testing
 All contract functions have been tested with Foundry:

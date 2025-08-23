@@ -19,7 +19,7 @@ class SystemIntegrationTest {
   }
 
   async runAllTests() {
-    console.log('🚀 Starting NeonTradeBot System Integration Tests\n');
+    console.log('Starting NeonTradeBot System Integration Tests\n');
     
     try {
       await this.testBackendHealth();
@@ -32,7 +32,7 @@ class SystemIntegrationTest {
       
       this.printTestSummary();
     } catch (error) {
-      console.error('❌ Integration test failed:', error.message);
+      console.error('Integration test failed:', error.message);
     } finally {
       if (this.socket) {
         this.socket.disconnect();
@@ -45,13 +45,13 @@ class SystemIntegrationTest {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/agents/network-stats`);
       if (response.status === 200 && response.data.networkStatus === 'CONNECTED') {
-        console.log('✅ Backend: HEALTHY');
+        console.log('Backend: HEALTHY');
         console.log(`   - Chain ID: ${response.data.chainId}`);
         console.log(`   - Block: ${response.data.blockNumber}`);
         this.testResults.backend = true;
       }
     } catch (error) {
-      console.log('❌ Backend: FAILED');
+      console.log('Backend: FAILED');
     }
   }
 
@@ -60,12 +60,12 @@ class SystemIntegrationTest {
     try {
       const response = await axios.get(FRONTEND_URL, { timeout: 5000 });
       if (response.status === 200) {
-        console.log('✅ Frontend: ACCESSIBLE');
+        console.log('Frontend: ACCESSIBLE');
         console.log('   - Running on port 5173');
         this.testResults.frontend = true;
       }
     } catch (error) {
-      console.log('❌ Frontend: FAILED');
+      console.log('Frontend: FAILED');
     }
   }
 
@@ -74,13 +74,13 @@ class SystemIntegrationTest {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/agents/network-stats`);
       if (response.data.contractBalance !== undefined) {
-        console.log('✅ Contract: CONNECTED');
+        console.log('Contract: CONNECTED');
         console.log(`   - Address: 0x7fc58f2d50790f6cddb631b4757f54b893692dde`);
         console.log(`   - Balance: ${response.data.contractBalance} SEI`);
         this.testResults.contract = true;
       }
     } catch (error) {
-      console.log('❌ Contract: FAILED');
+      console.log('Contract: FAILED');
     }
   }
 
@@ -91,24 +91,24 @@ class SystemIntegrationTest {
         this.socket = io(BACKEND_URL);
         
         this.socket.on('connect', () => {
-          console.log('✅ Socket.IO: CONNECTED');
+          console.log('Socket.IO: CONNECTED');
           this.testResults.realtime = true;
           resolve();
         });
 
         this.socket.on('connect_error', () => {
-          console.log('❌ Socket.IO: FAILED');
+          console.log('Socket.IO: FAILED');
           resolve();
         });
 
         setTimeout(() => {
           if (!this.testResults.realtime) {
-            console.log('❌ Socket.IO: TIMEOUT');
+            console.log('Socket.IO: TIMEOUT');
           }
           resolve();
         }, 3000);
       } catch (error) {
-        console.log('❌ Socket.IO: FAILED');
+        console.log('Socket.IO: FAILED');
         resolve();
       }
     });
@@ -119,13 +119,13 @@ class SystemIntegrationTest {
     try {
       const response = await axios.get(`${BACKEND_URL}/api/agents/network-stats`);
       if (response.data.chainId === 1328 && response.data.finality) {
-        console.log('✅ Sei Network: CONNECTED');
+        console.log('Sei Network: CONNECTED');
         console.log(`   - Finality: ${response.data.finality}`);
         console.log(`   - Gas Price: ${response.data.gasPrice} gwei`);
         this.testResults.sei = true;
       }
     } catch (error) {
-      console.log('❌ Sei Network: FAILED');
+      console.log('Sei Network: FAILED');
     }
   }
 
@@ -141,12 +141,12 @@ class SystemIntegrationTest {
       
       const response = await axios.post(`${BACKEND_URL}/api/agents/configure`, configData);
       if (response.status === 200 || response.status === 201) {
-        console.log('✅ Trading Engine: CONFIGURED');
+        console.log('Trading Engine: CONFIGURED');
         console.log('   - Agent configuration accepted');
         this.testResults.trading = true;
       }
     } catch (error) {
-      console.log('❌ Trading Engine: FAILED');
+      console.log('Trading Engine: FAILED');
     }
   }
 
@@ -154,16 +154,16 @@ class SystemIntegrationTest {
     console.log('\n7. Testing Crossmint Integration...');
     try {
       const response = await axios.get(`${BACKEND_URL}/api/agents/crossmint/status`);
-      console.log('✅ Crossmint: ACCESSIBLE');
+      console.log('Crossmint: ACCESSIBLE');
       console.log('   - API endpoints available');
       this.testResults.crossmint = true;
     } catch (error) {
-      console.log('❌ Crossmint: FAILED');
+      console.log('Crossmint: FAILED');
     }
   }
 
   printTestSummary() {
-    console.log('\n📊 SYSTEM INTEGRATION TEST SUMMARY');
+    console.log('\nSYSTEM INTEGRATION TEST SUMMARY');
     console.log('=====================================');
     
     const results = [
@@ -185,15 +185,15 @@ class SystemIntegrationTest {
     const passCount = Object.values(this.testResults).filter(Boolean).length;
     const totalCount = Object.keys(this.testResults).length;
     
-    console.log('\n📈 OVERALL SYSTEM STATUS');
+    console.log('\nOVERALL SYSTEM STATUS');
     console.log(`Tests Passed: ${passCount}/${totalCount}`);
     
     if (passCount === totalCount) {
-      console.log('🎉 ALL SYSTEMS OPERATIONAL - READY FOR HACKATHON!');
+      console.log('ALL SYSTEMS OPERATIONAL - READY FOR HACKATHON!');
     } else if (passCount >= 5) {
-      console.log('⚠️  MOSTLY OPERATIONAL - Minor issues detected');
+      console.log('MOSTLY OPERATIONAL - Minor issues detected');
     } else {
-      console.log('🚨 SYSTEM ISSUES - Requires attention');
+      console.log('SYSTEM ISSUES - Requires attention');
     }
   }
 }

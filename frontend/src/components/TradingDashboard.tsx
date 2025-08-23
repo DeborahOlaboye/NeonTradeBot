@@ -32,34 +32,44 @@ interface Trade {
 }
 
 interface TradingDashboardProps {
+  walletAddress?: string;
+  onDisconnect?: () => void;
+  onNavigate?: (page: string) => void;
+  currentPage?: string;
   onLog?: (message: string) => void;
 }
 
-export function TradingDashboard({ onLog }: TradingDashboardProps) {
-  const [trades, setTrades] = useState<Trade[]>([
-    {
-      id: '1',
-      type: 'BUY',
-      asset: 'SEI/USDT',
-      amount: '1000 SEI',
-      price: '$0.45',
-      status: 'EXECUTED',
-      timestamp: '2m ago',
-      paymentMethod: 'Crossmint',
-      crossmintId: 'cm_tx_123'
-    },
-    {
-      id: '2',
-      type: 'SELL',
-      asset: 'ETH/USDT',
-      amount: '0.5 ETH',
-      price: '$2,145.23',
-      status: 'PENDING',
-      timestamp: '5m ago',
-      paymentMethod: 'Crossmint',
-      crossmintId: 'cm_tx_124'
-    }
-  ]);
+export function TradingDashboard({ walletAddress, onDisconnect, onNavigate, currentPage, onLog }: TradingDashboardProps) {
+  const [trades, setTrades] = useState<Trade[]>([]);
+
+  // Fetch transaction history on component mount
+  useEffect(() => {
+    const fetchTransactionHistory = async () => {
+      try {
+        const response = await fetch("http://localhost:3002/api/agents/transaction-history");
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          const formattedTrades = result.transactions.map((tx: any) => ({
+            id: tx.id,
+            type: tx.type,
+            asset: tx.asset,
+            amount: `${tx.amount} ${tx.asset.split('/')[0]}`,
+            price: tx.price,
+            status: tx.status,
+            timestamp: new Date(tx.timestamp).toLocaleString(),
+            paymentMethod: 'Bot Execution',
+            crossmintId: tx.txHash
+          }));
+          setTrades(formattedTrades);
+        }
+      } catch (error) {
+        logMessage(`❌ Failed to fetch transaction history: ${error instanceof Error ? error.message : "Unknown error"}`);
+      }
+    };
+
+    fetchTransactionHistory();
+  }, []);
 
   const [newTradeAmount, setNewTradeAmount] = useState("");
   const [newTradeAsset, setNewTradeAsset] = useState("SEI");
@@ -78,56 +88,41 @@ export function TradingDashboard({ onLog }: TradingDashboardProps) {
 
     setLoading(true);
     try {
-      // First process payment via Crossmint
-      const paymentResponse = await fetch("http://localhost:3002/api/agents/crossmint/checkout", {
+      // Execute trade via bot API
+      const tradeResponse = await fetch("http://localhost:3002/api/agents/execute-trade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          recipient: "0x7fc58f2d50790f6cddb631b4757f54b893692dde",
-          collectionId: "neon-trade-execution",
-          price: newTradeAmount,
-          currency: "ETH",
+          walletAddress: walletAddress || "0x7fc58f2d50790f6cddb631b4757f54b893692dde",
+          privateKey: process.env.NEXT_PUBLIC_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000001",
+          tokenAddress: `0x${newTradeAsset.toLowerCase()}123456789`,
+          amount: newTradeAmount,
+          tradeType: type,
+          recipient: walletAddress || "0x7fc58f2d50790f6cddb631b4757f54b893692dde"
         }),
       });
 
-      const paymentResult = await paymentResponse.json();
-      
-      if (paymentResponse.ok) {
-        // Execute the actual trade
-        const tradeResponse = await fetch("http://localhost:3002/api/agents/monitor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            wallet: "0x7fc58f2d50790f6cddb631b4757f54b893692dde",
-            threshold: 0.05,
-            token: newTradeAsset,
-            recipient: "0x7fc58f2d50790f6cddb631b4757f54b893692dde"
-          }),
-        });
+      const tradeResult = await tradeResponse.json();
 
-        const tradeResult = await tradeResponse.json();
+      if (tradeResponse.ok && tradeResult.success) {
+        const newTrade: Trade = {
+          id: tradeResult.transaction.id,
+          type,
+          asset: `${newTradeAsset}/USDT`,
+          amount: `${newTradeAmount} ${newTradeAsset}`,
+          price: `${(parseFloat(newTradeAmount) * 0.45).toFixed(2)}`,
+          status: 'EXECUTED',
+          timestamp: 'Just now',
+          paymentMethod: 'Bot Execution',
+          crossmintId: tradeResult.txHash
+        };
 
-        if (tradeResponse.ok) {
-          const newTrade: Trade = {
-            id: Date.now().toString(),
-            type,
-            asset: `${newTradeAsset}/USDT`,
-            amount: `${newTradeAmount} ${newTradeAsset}`,
-            price: `$${(parseFloat(newTradeAmount) * 0.45).toFixed(2)}`,
-            status: 'EXECUTED',
-            timestamp: 'Just now',
-            paymentMethod: 'Crossmint',
-            crossmintId: paymentResult.sessionId
-          };
-
-          setTrades(prev => [newTrade, ...prev]);
-          logMessage(`✅ ${type} trade executed: ${newTradeAmount} ${newTradeAsset}`);
-          setNewTradeAmount("");
-        } else {
-          logMessage(`❌ Trade execution failed: ${tradeResult.error}`);
-        }
+        setTrades(prev => [newTrade, ...prev]);
+        logMessage(`✅ ${type} trade executed: ${newTradeAmount} ${newTradeAsset}`);
+        logMessage(`📋 Transaction: ${tradeResult.txHash}`);
+        setNewTradeAmount("");
       } else {
-        logMessage(`❌ Payment processing failed: ${paymentResult.error}`);
+        logMessage(`❌ Trade execution failed: ${tradeResult.error}`);
       }
     } catch (error) {
       logMessage(`❌ Error: ${error instanceof Error ? error.message : "Unknown error"}`);
@@ -234,6 +229,7 @@ export function TradingDashboard({ onLog }: TradingDashboardProps) {
               <Table.HeaderCell>Status</Table.HeaderCell>
               <Table.HeaderCell>Payment</Table.HeaderCell>
               <Table.HeaderCell>Time</Table.HeaderCell>
+              <Table.HeaderCell>TX Hash</Table.HeaderCell>
             </Table.HeaderRow>
           }
         >
@@ -280,6 +276,11 @@ export function TradingDashboard({ onLog }: TradingDashboardProps) {
               <Table.Cell>
                 <span className="text-body font-body text-[#8ca1ccff]">
                   {trade.timestamp}
+                </span>
+              </Table.Cell>
+              <Table.Cell>
+                <span className="text-body font-body text-[#8ca1ccff] font-mono text-xs">
+                  {trade.crossmintId || 'N/A'}
                 </span>
               </Table.Cell>
             </Table.Row>

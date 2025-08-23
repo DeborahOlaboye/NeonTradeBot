@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { WagmiProvider, createConfig, http } from 'wagmi';
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import { injectedWallet, metaMaskWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { mainnet, polygon, optimism, arbitrum, base } from 'wagmi/chains';
@@ -31,13 +32,31 @@ const seiTestnet = {
   testnet: true,
 } as const;
 
-const config = getDefaultConfig({
-  appName: 'NeonTradeBot',
-  projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || 'local-dev-only',
+// Configure connectors without Coinbase Wallet to avoid analytics
+const connectors = connectorsForWallets(
+  [
+    {
+      groupName: 'Recommended',
+      wallets: [
+        injectedWallet,
+        metaMaskWallet,
+        walletConnectWallet,
+      ],
+    },
+  ],
+  {
+    appName: 'NeonTradeBot',
+    projectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID || '2f05a7cec426b851bb134bb803a25654',
+  }
+);
+
+const config = createConfig({
+  connectors,
   chains: [seiTestnet],
   transports: {
     [seiTestnet.id]: http('https://evm-rpc-testnet.sei-apis.com'),
   },
+  ssr: false,
 });
 
 const queryClient = new QueryClient();
@@ -55,10 +74,15 @@ export function WalletProvider({ children }: WalletProviderProps) {
             accentColor: '#C82FFF',
             accentColorForeground: '#FFFFFF',
             borderRadius: 'medium',
-            fontStack: 'system',
-            overlayBlur: 'small',
           })}
           modalSize="compact"
+          showRecentTransactions={true}
+          coolMode={false}
+          appInfo={{
+            appName: 'NeonTradeBot',
+            disclaimer: undefined,
+            learnMoreUrl: undefined,
+          }}
         >
           {children}
         </RainbowKitProvider>

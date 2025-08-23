@@ -1,24 +1,58 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Alert } from "@/ui/components/Alert";
-import { Avatar } from "@/ui/components/Avatar";
-import { Badge } from "@/ui/components/Badge";
 import { Button } from "@/ui/components/Button";
+import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
+import { TextField } from "@/ui/components/TextField";
 import { IconButton } from "@/ui/components/IconButton";
 import { Table } from "@/ui/components/Table";
-import { TextField } from "@/ui/components/TextField";
+import { Badge } from "@/ui/components/Badge";
+import { Avatar } from "@/ui/components/Avatar";
 import { ToggleGroup } from "@/ui/components/ToggleGroup";
-import { DefaultPageLayout } from "@/ui/layouts/DefaultPageLayout";
-import { FeatherSearch } from "@/subframe/core";
-import { FeatherWallet } from "@/subframe/core";
-import { FeatherChevronDown } from "@/subframe/core";
-import { FeatherPlus } from "@/subframe/core";
-import { FeatherRefreshCw } from "@/subframe/core";
-import { FeatherActivity } from "@/subframe/core";
-import { FeatherX } from "@/subframe/core";
+import { 
+  FeatherSearch,
+  FeatherRefreshCw,
+  FeatherTrendingUp,
+  FeatherDollarSign,
+  FeatherActivity,
+  FeatherClock,
+  FeatherCheck,
+  FeatherX,
+  FeatherAlertCircle,
+  FeatherWallet,
+  FeatherPlus,
+  FeatherChevronDown
+} from "@/subframe/core";
+import Sidebar from "./components/Sidebar";
+import { WalletConnection } from "./components/WalletConnection";
 
-function Dashboard() {
+interface DashboardProps {
+  walletAddress: string;
+  onDisconnect: () => void;
+  onNavigate: (page: string) => void;
+  currentPage: string;
+}
+
+function Dashboard({ walletAddress, onDisconnect, onNavigate, currentPage }: DashboardProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [trades, setTrades] = useState<any[]>([]);
+  const [settlements, setSettlements] = useState<any[]>([]);
+
+  // Fetch real transaction history on component mount
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("http://localhost:3002/api/agents/transaction-history");
+        const result = await response.json();
+        setTrades(result);
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
   return (
     <DefaultPageLayout>
       <div className="container max-w-none flex h-full w-full flex-col items-start bg-[#0a0f2aff]">
@@ -35,39 +69,20 @@ function Dashboard() {
             >
               <TextField.Input
                 placeholder="Search transactions"
-                value=""
-                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {}}
+                value={searchQuery}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(event.target.value)}
               />
             </TextField>
             <Button
               icon={<FeatherWallet />}
-              onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+              onClick={() => navigator.clipboard.writeText(walletAddress)}
             >
-              0x7E3b...8F9d
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
             </Button>
           </div>
         </div>
         <div className="flex w-full items-center gap-4 border-b border-solid border-neutral-border px-6 py-4">
-          <ToggleGroup value="" onValueChange={(value: string) => {}}>
-            <ToggleGroup.Item icon={null} value="335285f2">
-              Overview
-            </ToggleGroup.Item>
-            <ToggleGroup.Item icon={null} value="260a4223">
-              Agent Config
-            </ToggleGroup.Item>
-            <ToggleGroup.Item icon={null} value="80f6a83d">
-              Trades
-            </ToggleGroup.Item>
-            <ToggleGroup.Item icon={null} value="45fb60c9">
-              Payments
-            </ToggleGroup.Item>
-            <ToggleGroup.Item icon={null} value="dfa34310">
-              Social
-            </ToggleGroup.Item>
-            <ToggleGroup.Item icon={null} value="090125bf">
-              Settings
-            </ToggleGroup.Item>
-          </ToggleGroup>
+          <Sidebar currentPage={currentPage} onNavigate={onNavigate} />
         </div>
         <div className="flex w-full grow shrink-0 basis-0 flex-wrap items-start">
           <div className="flex grow shrink-0 basis-0 flex-col items-start self-stretch overflow-auto">
@@ -96,82 +111,31 @@ function Dashboard() {
                   </Table.HeaderRow>
                 }
               >
-                <Table.Row>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#00f0ffff]">
-                      Buy
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        size="small"
-                        image="https://images.unsplash.com/photo-1622630998477-20aa696ecb05"
-                      >
-                        E
-                      </Avatar>
-                      <span className="text-body font-body text-[#8ca1ccff]">
-                        ETH/USDT
+                {trades.filter(trade => 
+                  trade.asset.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  trade.type.toLowerCase().includes(searchQuery.toLowerCase())
+                ).map(trade => (
+                  <Table.Row key={trade.id}>
+                    <Table.Cell>
+                      <span className={`text-body font-body ${trade.type === 'Buy' ? 'text-[#00f0ffff]' : 'text-[#ca4e98ff]'}`}>
+                        {trade.type}
                       </span>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      0.5 ETH
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      $2,145.23
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge variant="success">Executed</Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      2m ago
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
-                <Table.Row>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#ca4e98ff]">
-                      Sell
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        size="small"
-                        image="https://images.unsplash.com/photo-1621416894569-0f39ed31d247"
-                      >
-                        B
-                      </Avatar>
-                      <span className="text-body font-body text-[#8ca1ccff]">
-                        BTC/USDT
-                      </span>
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      0.1 BTC
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      $43,250.00
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge variant="error">Failed</Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      5m ago
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          size="small"
+                          image={trade.asset.includes('ETH') ? "https://images.unsplash.com/photo-1622630998477-20aa696ecb05" : "https://images.unsplash.com/photo-1621416894569-0f39ed31d247"}
+                        >
+                          {trade.asset.charAt(0)}
+                        </Avatar>
+                        <span className="text-body font-body text-[#8ca1ccff]">
+                          {trade.asset}
+                        </span>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
               </Table>
             </div>
             <div className="flex w-full flex-col items-start gap-6 px-6 py-6">
@@ -198,31 +162,33 @@ function Dashboard() {
                   </Table.HeaderRow>
                 }
               >
-                <Table.Row>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      0x71C...9E3F
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      $1,234.56
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      Crossmint
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Badge>Pending</Badge>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <span className="text-body font-body text-[#8ca1ccff]">
-                      1h ago
-                    </span>
-                  </Table.Cell>
-                </Table.Row>
+                {settlements.map(settlement => (
+                  <Table.Row key={settlement.id}>
+                    <Table.Cell>
+                      <span className="text-body font-body text-[#8ca1ccff]">
+                        {settlement.id}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="text-body font-body text-[#8ca1ccff]">
+                        {settlement.amount}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="text-body font-body text-[#8ca1ccff]">
+                        {settlement.method}
+                      </span>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Badge>{settlement.status}</Badge>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span className="text-body font-body text-[#8ca1ccff]">
+                        {settlement.time}
+                      </span>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
               </Table>
             </div>
           </div>
@@ -235,7 +201,7 @@ function Dashboard() {
                 <Button
                   className="h-8 w-full flex-none"
                   icon={<FeatherPlus />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                  onClick={() => onNavigate('trades')}
                 >
                   New Trade
                 </Button>
@@ -243,7 +209,7 @@ function Dashboard() {
                   className="h-8 w-full flex-none"
                   variant="brand-secondary"
                   icon={<FeatherRefreshCw />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                  onClick={() => onNavigate('agent-config')}
                 >
                   Update Config
                 </Button>
@@ -251,7 +217,7 @@ function Dashboard() {
                   className="h-8 w-full flex-none"
                   variant="brand-secondary"
                   icon={<FeatherActivity />}
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                  onClick={() => window.open('/analytics', '_blank')}
                 >
                   View Analytics
                 </Button>
@@ -266,7 +232,7 @@ function Dashboard() {
                   <IconButton
                     size="medium"
                     icon={<FeatherX />}
-                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {}}
+                    onClick={() => console.log('Alert dismissed')}
                   />
                 }
               />

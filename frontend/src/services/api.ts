@@ -13,7 +13,6 @@ export interface NetworkStats {
 
 export interface AgentConfig {
   walletAddress: string;
-  privateKey: string;
   volatilityThreshold: number;
   maxTradeAmount: number;
   tradingPairs?: string[];
@@ -33,18 +32,28 @@ class ApiService {
   private socket: Socket | null = null;
 
   constructor() {
-    this.initializeSocket();
+    this.setupWebSocket();
   }
 
-  private initializeSocket() {
+  setupWebSocket() {
     this.socket = io(BACKEND_URL);
     
-    this.socket.on('connect', () => {
-      console.log('Connected to backend');
+    this.socket.on('networkStats', (data) => {
+      console.log('Network stats update:', data);
     });
-
-    this.socket.on('disconnect', () => {
-      console.log('Disconnected from backend');
+    
+    this.socket.on('tradeExecuted', (data) => {
+      console.log('Trade executed:', data);
+    });
+    
+    this.socket.on('tradeSignal', (data) => {
+      console.log('Trade signal received - wallet approval needed:', data);
+      // Emit custom event for components to handle wallet transactions
+      window.dispatchEvent(new CustomEvent('tradeSignal', { detail: data }));
+    });
+    
+    this.socket.on('log', (message) => {
+      console.log('Agent log:', message);
     });
   }
 
@@ -63,6 +72,7 @@ class ApiService {
   // Agent configuration
   async configureAgent(config: AgentConfig): Promise<any> {
     try {
+      console.log('Configuring agent with config:', config);
       const response = await fetch(`${BACKEND_URL}/api/agents/configure`, {
         method: 'POST',
         headers: {
@@ -70,8 +80,16 @@ class ApiService {
         },
         body: JSON.stringify(config),
       });
-      if (!response.ok) throw new Error('Failed to configure agent');
-      return await response.json();
+      
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Response body:', responseText);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to configure agent: ${response.status} - ${responseText}`);
+      }
+      
+      return responseText ? JSON.parse(responseText) : {};
     } catch (error) {
       console.error('Error configuring agent:', error);
       throw error;
@@ -87,8 +105,12 @@ class ApiService {
         },
         body: JSON.stringify({ agentId }),
       });
+      
+      const responseText = await response.text();
+      console.log('Start agent response:', responseText);
+      
       if (!response.ok) throw new Error('Failed to start agent');
-      return await response.json();
+      return responseText ? JSON.parse(responseText) : {};
     } catch (error) {
       console.error('Error starting agent:', error);
       throw error;
@@ -104,8 +126,12 @@ class ApiService {
         },
         body: JSON.stringify({ agentId }),
       });
-      if (!response.ok) throw new Error('Failed to stop agent');
-      return await response.json();
+      
+      const responseText = await response.text();
+      console.log('Stop agent response:', responseText);
+      
+      if (!response.ok) throw new Error(`Failed to stop agent: ${response.status} - ${responseText}`);
+      return responseText ? JSON.parse(responseText) : {};
     } catch (error) {
       console.error('Error stopping agent:', error);
       throw error;
@@ -140,6 +166,36 @@ class ApiService {
   onAgentStatusUpdate(callback: (data: any) => void) {
     if (this.socket) {
       this.socket.on('agentStatusUpdate', callback);
+    }
+  }
+
+  // Confirm trade execution after wallet approval
+  async confirmTradeExecution(tradeData: any): Promise<any> {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/agents/confirm-trade`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tradeData),
+      });
+      if (!response.ok) throw new Error('Failed to confirm trade');
+      return await response.json();
+    } catch (error) {
+      console.error('Error confirming trade:', error);
+      throw error;
+    }
+  }
+
+  // Trading pairs
+  async getTradingPairs(): Promise<any[]> {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/agents/trading-pairs`);
+      if (!response.ok) throw new Error('Failed to fetch trading pairs');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching trading pairs:', error);
+      throw error;
     }
   }
 

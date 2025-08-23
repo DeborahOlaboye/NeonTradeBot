@@ -1,8 +1,8 @@
-# 🤖 NeonTradeBot - AI DeFi Agent
+# NeonTradeBot - AI DeFi Agent
 
-**Cyberpunk-styled AI-driven DeFi agent for automated portfolio management on Sei Network**
+**AI-driven DeFi agent for automated portfolio management on Sei Network**
 
-## 🚀 Project Overview
+## Project Overview
 Track Alignment
 Enhances DeFi protocols with automation (portfolio monitoring, trades) and payments (agent-to-agent via Crossmint GOAT SDK), improving UX for traders.
 Setup

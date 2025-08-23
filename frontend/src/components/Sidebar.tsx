@@ -20,7 +20,7 @@ const navigationItems = [
   { id: "agent-config", label: "Agent Config", icon: FeatherTrendingUp },
   { id: "trades", label: "Trades", icon: FeatherBarChart3 },
   { id: "payments", label: "Payments", icon: FeatherCreditCard },
-  { id: "settings", label: "Settings", icon: FeatherSettings },
+  { id: "transactions", label: "Transactions", icon: FeatherSettings },
 ];
 
 function Sidebar({ currentPage, onNavigate }: SidebarProps) {
