@@ -652,7 +652,7 @@ function Trading({ walletAddress, onDisconnect, onNavigate, currentPage }: Tradi
             <CrossmintIntegrationPanel />
             
             {/* Yei Finance Integration Section */}
-            <YeiFinancePanel walletAddress={walletAddress} />
+            <YeiFinancePanel />
           </div>
         </div>
       </div>

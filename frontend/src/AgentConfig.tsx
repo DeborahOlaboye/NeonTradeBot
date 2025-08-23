@@ -35,7 +35,14 @@ function AgentConfig({ walletAddress, onDisconnect, onNavigate, currentPage }: A
   const [isSaved, setIsSaved] = useState(false);
   const [tradingPairs, setTradingPairs] = useState<any[]>([]);
   const { data: walletClient } = useWalletClient();
-  const signer = walletClient;
+  
+  // Convert wagmi wallet client to ethers provider/signer
+  const getEthersSigner = async () => {
+    if (!walletClient) return null;
+    
+    const provider = new ethers.BrowserProvider(walletClient.transport);
+    return provider.getSigner();
+  };
   // Remove local botRunning state - use global botState instead
 
   useEffect(() => {
@@ -85,6 +92,8 @@ function AgentConfig({ walletAddress, onDisconnect, onNavigate, currentPage }: A
 
   const handleTradeSignal = async (event: any) => {
     const tradeData = event.detail;
+    const signer = await getEthersSigner();
+    
     if (!signer || !config.walletAddress) {
       updateStatus('Please connect your wallet first');
       return;
