@@ -43,7 +43,7 @@ function Dashboard({ walletAddress, onDisconnect, onNavigate, currentPage }: Das
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("http://localhost:3002/api/agents/transaction-history");
+        const response = await fetch("https://neontradebot.onrender.com/api/agents/transaction-history");
         const result = await response.json();
         setTrades(result);
       } catch (error) {

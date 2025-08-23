@@ -1,6 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 
-const BACKEND_URL = 'http://localhost:3002';
+const API_BASE_URL = 'https://neontradebot.onrender.com';
 
 export interface NetworkStats {
   blockNumber: number;
@@ -36,7 +36,7 @@ class ApiService {
   }
 
   setupWebSocket() {
-    this.socket = io(BACKEND_URL);
+    this.socket = io(API_BASE_URL);
     
     this.socket.on('networkStats', (data) => {
       console.log('Network stats update:', data);
@@ -60,7 +60,7 @@ class ApiService {
   // Network and contract data
   async getNetworkStats(): Promise<NetworkStats> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/network-stats`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/network-stats`);
       if (!response.ok) throw new Error('Failed to fetch network stats');
       return await response.json();
     } catch (error) {
@@ -73,7 +73,7 @@ class ApiService {
   async configureAgent(config: AgentConfig): Promise<any> {
     try {
       console.log('Configuring agent with config:', config);
-      const response = await fetch(`${BACKEND_URL}/api/agents/configure`, {
+      const response = await fetch(`${API_BASE_URL}/api/agents/configure`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -98,7 +98,7 @@ class ApiService {
 
   async startAgent(agentId: string): Promise<any> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/start`, {
+      const response = await fetch(`${API_BASE_URL}/api/agents/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +119,7 @@ class ApiService {
 
   async stopAgent(agentId: string): Promise<any> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/stop`, {
+      const response = await fetch(`${API_BASE_URL}/api/agents/stop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ class ApiService {
   // Analytics and monitoring
   async getAnalytics(): Promise<any> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/analytics`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/analytics`);
       if (!response.ok) throw new Error('Failed to fetch analytics');
       return await response.json();
     } catch (error) {
@@ -172,7 +172,7 @@ class ApiService {
   // Confirm trade execution after wallet approval
   async confirmTradeExecution(tradeData: any): Promise<any> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/confirm-trade`, {
+      const response = await fetch(`${API_BASE_URL}/api/agents/confirm-trade`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -190,7 +190,7 @@ class ApiService {
   // Trading pairs
   async getTradingPairs(): Promise<any[]> {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/agents/trading-pairs`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/trading-pairs`);
       if (!response.ok) throw new Error('Failed to fetch trading pairs');
       return await response.json();
     } catch (error) {

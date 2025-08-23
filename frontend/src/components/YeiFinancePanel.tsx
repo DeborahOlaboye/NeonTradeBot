@@ -65,19 +65,19 @@ function YeiFinancePanel() {
   const fetchYeiData = async () => {
     try {
       // Fetch yield opportunities
-      const response = await fetch('http://localhost:3002/api/agents/yei/opportunities');
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/yei/opportunities');
       const data = await response.json();
       setOpportunities(data.opportunities || []);
       
       // Fetch account data if wallet is connected
       if (address) {
-        const accountResponse = await fetch(`http://localhost:3002/api/agents/yei/account/${address}`);
+        const accountResponse = await fetch(`https://neontradebot.onrender.com/api/agents/yei/account/${address}`);
         const accountData = await accountResponse.json();
         setAccountData(accountData);
       }
       
       // Fetch protocol stats
-      const statsResponse = await fetch('http://localhost:3002/api/agents/yei/stats');
+      const statsResponse = await fetch('https://neontradebot.onrender.com/api/agents/yei/stats');
       const statsData = await statsResponse.json();
       setProtocolStats(statsData);
     } catch (error) {
@@ -97,7 +97,7 @@ function YeiFinancePanel() {
     setStatusMessage('Supplying assets to Yei Finance...');
 
     try {
-      const response = await fetch('http://localhost:3002/api/agents/yei/supply', {
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/yei/supply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -130,7 +130,7 @@ function YeiFinancePanel() {
     setStatusMessage('Optimizing yield strategy...');
 
     try {
-      const response = await fetch('http://localhost:3002/api/agents/yei/optimize-yield', {
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/yei/optimize-yield', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -32,7 +32,7 @@ export function CrossmintIntegration({ onLog }: CrossmintIntegrationProps) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3002/api/agents/crossmint/wallet", {
+      const response = await fetch("https://neontradebot.onrender.com/api/agents/crossmint/wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: walletEmail, type: "ethereum" }),
@@ -59,7 +59,7 @@ export function CrossmintIntegration({ onLog }: CrossmintIntegrationProps) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3002/api/agents/crossmint/checkout", {
+      const response = await fetch("https://neontradebot.onrender.com/api/agents/crossmint/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -94,7 +94,7 @@ export function CrossmintIntegration({ onLog }: CrossmintIntegrationProps) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3002/api/agents/crossmint/mint", {
+      const response = await fetch("https://neontradebot.onrender.com/api/agents/crossmint/mint", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

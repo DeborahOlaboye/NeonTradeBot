@@ -26,7 +26,7 @@ export function LiveTradeHistory({ agentId, isVisible = true }: LiveTradeHistory
 
   useEffect(() => {
     // Connect to backend socket
-    const newSocket = io('http://localhost:3002');
+    const newSocket = io('https://neontradebot.onrender.com');
     setSocket(newSocket);
 
     // Listen for trade updates

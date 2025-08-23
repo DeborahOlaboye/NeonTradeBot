@@ -46,7 +46,7 @@ export function TradingDashboard({ walletAddress, onDisconnect, onNavigate, curr
   useEffect(() => {
     const fetchTransactionHistory = async () => {
       try {
-        const response = await fetch("http://localhost:3002/api/agents/transaction-history");
+        const response = await fetch("https://neontradebot.onrender.com/api/agents/transaction-history");
         const result = await response.json();
         
         if (response.ok && result.success) {
@@ -89,7 +89,7 @@ export function TradingDashboard({ walletAddress, onDisconnect, onNavigate, curr
     setLoading(true);
     try {
       // Execute trade via bot API
-      const tradeResponse = await fetch("http://localhost:3002/api/agents/execute-trade", {
+      const tradeResponse = await fetch("https://neontradebot.onrender.com/api/agents/execute-trade", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

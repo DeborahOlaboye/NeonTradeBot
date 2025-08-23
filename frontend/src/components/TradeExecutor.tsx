@@ -14,7 +14,7 @@ export function TradeExecutor({ isAuthorized }: TradeExecutorProps) {
   useEffect(() => {
     if (!isAuthorized || !isConnected || !address) return;
 
-    const socket = io('http://localhost:3002');
+    const socket = io('https://neontradebot.onrender.com');
 
     const handleTradeSignal = async (tradeSignal: any) => {
       console.log('🔔 Received trade signal:', tradeSignal);

@@ -7,7 +7,14 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3001", "http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:3001", 
+      "http://localhost:3000", 
+      "http://localhost:5173", 
+      "http://localhost:5174",
+      "https://neon-trade-bot.vercel.app",
+      "https://neontradebot.onrender.com"
+    ],
     methods: ["GET", "POST"]
   }
 });
@@ -15,6 +22,26 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.set('io', io);
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'NeonTradeBot Backend API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      agents: '/api/agents/*'
+    },
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', service: 'NeonTradeBot Backend', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/agents', require('./routes/agents'));
 
 io.on('connection', (socket) => {
@@ -22,4 +49,5 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-server.listen(3002, () => console.log('NeonTradeBot Backend running on port 3002'));
+const PORT = process.env.PORT || 3002;
+server.listen(PORT, () => console.log(`NeonTradeBot Backend running on port ${PORT}`));

@@ -177,7 +177,7 @@ function TradingPairsPanel() {
     setIsLoading(true);
     try {
       // Fetch directly from backend services (Sei MCP -> Rivalz -> Hive -> Mock)
-      const response = await fetch('http://localhost:3002/api/agents/trading-pairs');
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/trading-pairs');
       const pairs = await response.json();
       setTradingPairs(pairs);
     } catch (error) {
@@ -349,7 +349,7 @@ function CrossmintIntegrationPanel() {
     setIsLoading(true);
     setStatusMessage('Processing withdrawal...');
     try {
-      const response = await fetch('http://localhost:3002/api/agents/crossmint/withdraw', {
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/crossmint/withdraw', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -387,7 +387,7 @@ function CrossmintIntegrationPanel() {
     setIsLoading(true);
     setStatusMessage('Minting Agent NFT...');
     try {
-      const response = await fetch('http://localhost:3002/api/agents/crossmint/mint-nft', {
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/crossmint/mint-nft', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -415,7 +415,7 @@ function CrossmintIntegrationPanel() {
     setIsLoading(true);
     setStatusMessage('Processing payment...');
     try {
-      const response = await fetch('http://localhost:3002/api/agents/crossmint/process-payment', {
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/crossmint/process-payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -512,7 +512,7 @@ function TransactionHistoryTable() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch("http://localhost:3002/api/agents/transaction-history");
+      const response = await fetch("https://neontradebot.onrender.com/api/agents/transaction-history");
       const result = await response.json();
       setTransactions(result);
     } catch (error) {
