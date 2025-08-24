@@ -31,6 +31,30 @@ app.use(cors({
 app.use(express.json());
 app.set('io', io);
 
+// API Key Authentication Middleware
+const API_KEY = process.env.API_KEY || 'neontradebot-2025';
+
+const authenticateAPI = (req, res, next) => {
+  // Skip auth for health check and root endpoint
+  if (req.path === '/health' || req.path === '/') {
+    return next();
+  }
+  
+  const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+  
+  if (!apiKey || apiKey !== API_KEY) {
+    return res.status(401).json({ 
+      error: 'Unauthorized', 
+      message: 'Valid API key required',
+      hint: 'Include X-API-Key header with your request'
+    });
+  }
+  
+  next();
+};
+
+app.use(authenticateAPI);
+
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({ 

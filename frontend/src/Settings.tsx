@@ -177,7 +177,12 @@ function TradingPairsPanel() {
     setIsLoading(true);
     try {
       // Fetch directly from backend services (Sei MCP -> Rivalz -> Hive -> Mock)
-      const response = await fetch('https://neontradebot.onrender.com/api/agents/trading-pairs');
+      const response = await fetch('https://neontradebot.onrender.com/api/agents/trading-pairs', {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'neontradebot-2025'
+        }
+      });
       const pairs = await response.json();
       setTradingPairs(pairs);
     } catch (error) {
@@ -512,7 +517,12 @@ function TransactionHistoryTable() {
 
   const fetchTransactions = async () => {
     try {
-      const response = await fetch("https://neontradebot.onrender.com/api/agents/transaction-history");
+      const response = await fetch("https://neontradebot.onrender.com/api/agents/transaction-history", {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': 'neontradebot-2025'
+        }
+      });
       const result = await response.json();
       setTransactions(result);
     } catch (error) {

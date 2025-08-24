@@ -1,6 +1,13 @@
 import { io, Socket } from 'socket.io-client';
 
 const API_BASE_URL = 'https://neontradebot.onrender.com';
+const API_KEY = 'neontradebot-2025';
+
+// Helper function to get authenticated headers
+const getAuthHeaders = () => ({
+  'Content-Type': 'application/json',
+  'X-API-Key': API_KEY
+});
 
 export interface NetworkStats {
   blockNumber: number;
@@ -60,7 +67,9 @@ class ApiService {
   // Network and contract data
   async getNetworkStats(): Promise<NetworkStats> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/agents/network-stats`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/network-stats`, {
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error('Failed to fetch network stats');
       return await response.json();
     } catch (error) {
@@ -75,9 +84,7 @@ class ApiService {
       console.log('Configuring agent with config:', config);
       const response = await fetch(`${API_BASE_URL}/api/agents/configure`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(config),
       });
       
@@ -100,9 +107,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/agents/start`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ agentId }),
       });
       
@@ -121,9 +126,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/agents/stop`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ agentId }),
       });
       
@@ -141,7 +144,9 @@ class ApiService {
   // Analytics and monitoring
   async getAnalytics(): Promise<any> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/agents/analytics`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/analytics`, {
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error('Failed to fetch analytics');
       return await response.json();
     } catch (error) {
@@ -174,9 +179,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE_URL}/api/agents/confirm-trade`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify(tradeData),
       });
       if (!response.ok) throw new Error('Failed to confirm trade');
@@ -190,7 +193,9 @@ class ApiService {
   // Trading pairs
   async getTradingPairs(): Promise<any[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/agents/trading-pairs`);
+      const response = await fetch(`${API_BASE_URL}/api/agents/trading-pairs`, {
+        headers: getAuthHeaders()
+      });
       if (!response.ok) throw new Error('Failed to fetch trading pairs');
       return await response.json();
     } catch (error) {
